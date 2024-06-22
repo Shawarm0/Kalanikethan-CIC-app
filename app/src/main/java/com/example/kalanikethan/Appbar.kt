@@ -14,6 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.Composable
 
 
 @Composable
@@ -21,7 +22,7 @@ fun Appbar(modifier: Modifier = Modifier) {
     var selectedScreen by remember { mutableStateOf("screen1") } // Track selected screen
 
     Surface(
-        modifier = modifier.fillMaxHeight(),
+        modifier = modifier.fillMaxHeight().width(150.dp),
         color = Color(0xFF98999D), // AppBar background color
         shape = RoundedCornerShape(8.dp),
     ) {
@@ -62,15 +63,15 @@ fun AppBarButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = if (isSelected) {
-            ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
+            ButtonDefaults.buttonColors(containerColor = Color(0xFF646569))
         } else {
-            ButtonDefaults.buttonColors(backgroundColor = Color(0xFF646569)) // Non-selected color
+            ButtonDefaults.buttonColors(containerColor = Color.Transparent) // Non-selected color
         },
         shape = RoundedCornerShape(0.dp) // No rounded corners for extending background
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color(0xFF98999D) else Color.White, // Text color
+            color = if (isSelected) Color.White else Color.White, // Text color
             fontSize = 16.sp
         )
     }
