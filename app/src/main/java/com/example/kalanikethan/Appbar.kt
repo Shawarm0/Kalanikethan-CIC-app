@@ -18,13 +18,16 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-fun Appbar(modifier: Modifier = Modifier) {
+fun Appbar(
+    modifier: Modifier = Modifier,
+    onScreenSelected: (String) -> Unit // Add this parameter
+) {
     var selectedScreen by remember { mutableStateOf("screen1") } // Track selected screen
 
     Surface(
-        modifier = modifier.fillMaxHeight().width(150.dp),
-        color = Color(0xFF98999D), // AppBar background color
-        shape = RoundedCornerShape(8.dp),
+        modifier = modifier.fillMaxHeight().width(200.dp),
+        color = Color(0xFF135897), // AppBar background color
+        shape = RoundedCornerShape(0.dp),
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -34,22 +37,42 @@ fun Appbar(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.logo), // Replace with your logo
                 contentDescription = "App Logo",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(100.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Button 1
+            // Inside Appbar composable
             AppBarButton(
-                text = "Screen 1",
+                symbol = "⎘",
+                text = " Sign In",
                 isSelected = selectedScreen == "screen1",
-                onClick = { selectedScreen = "screen1" }
+                onClick = {
+                    selectedScreen = "screen1"
+                    onScreenSelected("signIn")
+                }
             )
+
 
             // Button 2
             AppBarButton(
-                text = "Screen 2",
+                symbol = "✚",
+                text = " Add",
                 isSelected = selectedScreen == "screen2",
-                onClick = { selectedScreen = "screen2" }
+                onClick = {
+                    selectedScreen = "screen2"
+                    onScreenSelected("placeholder1")
+                }
+            )
+
+            // Button 3
+            AppBarButton(
+                symbol = " ?",
+                text = " Who's In",
+                isSelected = selectedScreen == "screen3",
+                onClick = {
+                    selectedScreen = "screen3"
+                    onScreenSelected("whoin")
+                }
             )
 
             // Add more buttons as needed
@@ -58,21 +81,35 @@ fun Appbar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun AppBarButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
+fun AppBarButton(symbol: String, text: String, isSelected: Boolean, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.width(150.dp),
         colors = if (isSelected) {
-            ButtonDefaults.buttonColors(containerColor = Color(0xFF646569))
+            ButtonDefaults.buttonColors(containerColor = Color(
+                0xFF1b69b2))
         } else {
             ButtonDefaults.buttonColors(containerColor = Color.Transparent) // Non-selected color
         },
-        shape = RoundedCornerShape(0.dp) // No rounded corners for extending background
+        shape = RoundedCornerShape(8.dp) // Rounded corners with 8.dp radius
     ) {
-        Text(
-            text = text,
-            color = if (isSelected) Color.White else Color.White, // Text color
-            fontSize = 16.sp
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = symbol,
+                color = if (isSelected) Color.White else Color.White, // Text color
+                fontSize = 16.sp
+            )
+            Spacer(modifier = Modifier.width(8.dp)) // Adjust spacing as needed
+            Text(
+                text = text,
+                color = if (isSelected) Color.White else Color.White, // Text color
+                fontSize = 16.sp,
+                modifier = Modifier.padding(end = 8.dp) // Add padding between symbol and text
+            )
+        }
     }
 }
