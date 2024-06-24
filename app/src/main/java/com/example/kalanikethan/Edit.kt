@@ -27,7 +27,8 @@ fun Edit(
     address: String,
     canLeaveAlone: Boolean,
     additionalInfo: String,
-    onSave: (Int, String, Int, String, String, String, String, Boolean, String) -> Unit // Function to handle save action
+    onSave: (Int, String, Int, String, String, String, String, Boolean, String) -> Unit, // Function to handle save action
+    onDelete: (Int) -> Unit // Function to handle delete action
 ) {
     var editedStudentName by remember { mutableStateOf(studentName) }
     var editedAge by remember { mutableStateOf(age) }
@@ -66,8 +67,6 @@ fun Edit(
                     textAlign = TextAlign.Start
                 )
             }
-            println(ID)
-            println(studentName)
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -165,18 +164,29 @@ fun Edit(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        SaveButton("Save") {
-                            onSave(
-                                ID,
-                                editedStudentName,
-                                editedAge,
-                                editedContactInfo,
-                                editedParentName,
-                                editedParentContactInfo,
-                                editedAddress,
-                                editedCanLeaveAlone,
-                                editedAdditionalInfo
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            SaveButton("Save") {
+                                onSave(
+                                    ID,
+                                    editedStudentName,
+                                    editedAge,
+                                    editedContactInfo,
+                                    editedParentName,
+                                    editedParentContactInfo,
+                                    editedAddress,
+                                    editedCanLeaveAlone,
+                                    editedAdditionalInfo
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            DeleteButton("Delete") {
+                                onDelete(ID)
+                            }
                         }
                     }
 
@@ -252,3 +262,21 @@ fun SaveButton(text: String, onClick: () -> Unit) {
         Text(text, fontSize = 16.sp)
     }
 }
+
+@Composable
+fun DeleteButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(200.dp)
+            .height(48.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFcc0000))
+    ) {
+        Text(text, fontSize = 16.sp)
+    }
+}
+
+// Assume your MainActivity continues below with readStudentsData and writeStudentsData functions
+
+

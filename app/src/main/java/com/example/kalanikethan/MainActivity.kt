@@ -119,6 +119,32 @@ class MainActivity : ComponentActivity() {
 
 
                                         }
+                                    },
+                                    onDelete = { ID ->
+                                        // Read existing students data
+                                        val students = readStudentsData(applicationContext)
+
+                                        // Filter out the student with matching ID
+                                        val updatedStudents = students.filter { it.ID != ID }
+
+                                        // Write back updated data to JSON file
+                                        writeStudentsData(applicationContext, updatedStudents)
+
+                                        // Update selectedStudent and selectedScreen if the deleted student was selected
+                                        if (selectedStudent.ID == ID) {
+                                            selectedStudent = Student(
+                                                ID = 0,
+                                                studentName = "",
+                                                age = 0,
+                                                contactInfo = "",
+                                                parentName = "",
+                                                parentContactInfo = "",
+                                                address = "",
+                                                canLeaveAlone = false,
+                                                additionalInfo = ""
+                                            )
+                                            selectedScreen = "signIn" // or any default screen after deletion
+                                        }
                                     }
                                 )
                                 // Add more cases for other screens
