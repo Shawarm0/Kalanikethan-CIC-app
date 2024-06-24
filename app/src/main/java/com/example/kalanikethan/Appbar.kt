@@ -25,7 +25,7 @@ fun Appbar(
     var selectedScreen by remember { mutableStateOf("screen1") } // Track selected screen
 
     Surface(
-        modifier = modifier.fillMaxHeight().width(200.dp),
+        modifier = modifier.height(500.dp).width(200.dp),
         color = Color(0xFF135897), // AppBar background color
         shape = RoundedCornerShape(0.dp),
     ) {

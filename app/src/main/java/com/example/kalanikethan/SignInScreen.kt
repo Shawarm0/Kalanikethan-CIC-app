@@ -31,17 +31,20 @@ import java.io.File
 
 
 data class Student(
-    val studentName: String,
-    val age: Int,
-    val contactInfo: String,
-    val parentContactInfo: String,
-    val canLeaveAlone: Boolean,
-    val additionalInfo: String
+    val ID: Int,
+    var studentName: String,
+    var age: Int,
+    var contactInfo: String,
+    var parentName: String,
+    var parentContactInfo: String,
+    var address: String,
+    var canLeaveAlone: Boolean,
+    var additionalInfo: String
 )
 
 
 
-class Load(private val context: Context) {
+class Load(private val context: Context, ) {
     fun loadStudents(): List<Student> {
         val file = File(context.filesDir, "students.json")
         return try {
@@ -55,19 +58,23 @@ class Load(private val context: Context) {
 }
 
 
-
-
 @Composable
-fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContactInfo: String, canLeaveAlone: Boolean) {
+fun StudentBox(
+    studentName: String,
+    age: Int,
+    contactInfo: String,
+    parentContactInfo: String,
+    canLeaveAlone: Boolean,
+    onClick: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
             .padding(horizontal = 16.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White),
-
-        ) {
+            .background(Color.White)
+    ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
@@ -103,7 +110,7 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Text(
-                    text = "$age", // Replace with actual age data
+                    text = age.toString(),
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -115,14 +122,14 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Contact Info",
+                    text = "Student Num",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Text(
-                    text = contactInfo, // Replace with actual contact info
+                    text = contactInfo,
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -134,23 +141,26 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Parent Contact Info",
+                    text = "Parent Num",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Text(
-                    text = parentContactInfo, // Replace with actual parent contact info
+                    text = parentContactInfo,
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
-            // Fifth Column: Can Leave Alone
+
+            // Fifth Column: Can Leave Alone (Checkbox)
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "Can leave alone",
@@ -161,51 +171,59 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
                 )
                 Checkbox(
                     checked = canLeaveAlone,
-                    onCheckedChange = null, // Pass null to make it disabled
-                    enabled = false, // Disable checkbox so it cannot be changed
+                    onCheckedChange = null, // Make it read-only
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
 
-//            // Sixth Column: Edit and Sign In Buttons
-//            Column(
-//                modifier = Modifier.weight(1f)
-//            ) {
-//                Button(
-//                    onClick = { /* Handle Edit button click */ },
-//                    modifier = Modifier
-//                        .padding(horizontal = 8.dp, vertical = 4.dp)
-//                        .height(25.dp).width(100.dp),
-//                ) {
-//                    Text(
-//                        text = "Edit",
-//                        fontSize = 5.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                }
-//                Button(
-//                    onClick = { /* Handle Sign In button click */ },
-//                    modifier = Modifier
-//                        .padding(horizontal = 8.dp, vertical = 4.dp)
-//                        .height(25.dp).width(100.dp),
-//                ) {
-//                    Text(
-//                        text = "Sign In",
-//                        fontSize = 5.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                }
-//            }
+            // Sixth Column: Edit Button
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .fillMaxWidth(),
+                ) {
+                    Text(
+                        text = "Edit",
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
+            }
+
+            // Seventh Column: Sign In Button
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Button(
+                    onClick = { /* Handle Sign In button click */ },
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .fillMaxWidth(),
+                ) {
+                    Text(
+                        text = "Sign In",
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
+            }
         }
     }
 }
 
-
 @Composable
-fun SignInScreen(context: Context) {
+fun SignInScreen(
+    context: Context,
+    onScreenSelected: (String, Student) -> Unit
+) {
     val load = Load(context)
     val sortedStudents = load.loadStudents()
-
 
     Box(
         modifier = Modifier
@@ -241,18 +259,21 @@ fun SignInScreen(context: Context) {
             }
             Spacer(modifier = Modifier.height(10.dp))
             // Display student boxes
-            println(sortedStudents)
             sortedStudents.forEach { student ->
-                StudentBox(studentName = student.studentName,
+                StudentBox(
+                    studentName = student.studentName,
                     age = student.age,
                     contactInfo = student.contactInfo,
                     parentContactInfo = student.parentContactInfo,
-                    canLeaveAlone = student.canLeaveAlone)
+                    canLeaveAlone = student.canLeaveAlone,
+                    onClick = { onScreenSelected("edit", student) } // Pass the student data when clicked
+                )
                 Spacer(modifier = Modifier.height(10.dp)) // Vertical gap between boxes
             }
         }
     }
 }
+
 
 
 

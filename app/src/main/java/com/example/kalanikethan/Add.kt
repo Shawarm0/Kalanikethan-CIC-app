@@ -26,6 +26,10 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import kotlin.random.Random
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +48,7 @@ fun Add(context: Context) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFFebefef))
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .padding(horizontal = 0.dp, vertical = 24.dp)
     ) {
         // Box at the top for "Add Student"
         Box(
@@ -166,36 +170,29 @@ fun Add(context: Context) {
 
 
                     // Add Button
-                    Button(
-                        onClick = {
-                            // Add student data to internal storage
-                            addStudentToInternalStorage(
-                                context = context,
-                                name = childName,
-                                age = age,
-                                contactInfo = contactInfo,
-                                parentName = parentName,
-                                parentContactInfo = parentContactInfo,
-                                address = address,
-                                additionalInfo = additionalInfo,
-                                canWalkHomeAlone = canWalkHomeAlone
-                            )
+                    AddButton("Add") {
+                        // Add student data to internal storage
+                        addStudentToInternalStorage(
+                            context = context,
+                            name = childName,
+                            age = age,
+                            contactInfo = contactInfo,
+                            parentName = parentName,
+                            parentContactInfo = parentContactInfo,
+                            address = address,
+                            additionalInfo = additionalInfo,
+                            canWalkHomeAlone = canWalkHomeAlone
+                        )
 
-                            // Clear form fields
-                            childName = ""
-                            age = 0
-                            contactInfo = ""
-                            parentName = ""
-                            parentContactInfo = ""
-                            address = ""
-                            additionalInfo = ""
-                            canWalkHomeAlone = false
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text("Add")
+                        // Clear form fields
+                        childName = ""
+                        age = 0
+                        contactInfo = ""
+                        parentName = ""
+                        parentContactInfo = ""
+                        address = ""
+                        additionalInfo = ""
+                        canWalkHomeAlone = false
                     }
                 }
 
@@ -264,7 +261,6 @@ fun Add(context: Context) {
 
 
 
-// Function to add student data to internal storage
 private fun addStudentToInternalStorage(
     context: Context,
     name: String,
@@ -284,13 +280,20 @@ private fun addStudentToInternalStorage(
             JSONArray()
         }
 
-        val jsonObject = JSONObject()
-        jsonObject.put("studentName", name)
-        jsonObject.put("age", age)
-        jsonObject.put("contactInfo", contactInfo)
-        jsonObject.put("parentContactInfo", parentContactInfo)
-        jsonObject.put("additionalInfo", additionalInfo)
-        jsonObject.put("canLeaveAlone", canWalkHomeAlone)
+        // Generate a unique ID
+        val uniqueId = generateUniqueId(jsonArray)
+
+        val jsonObject = JSONObject().apply {
+            put("ID", uniqueId)
+            put("studentName", name)
+            put("age", age)
+            put("contactInfo", contactInfo)
+            put("parentName", parentName)
+            put("parentContactInfo", parentContactInfo)
+            put("address", address)
+            put("additionalInfo", additionalInfo)
+            put("canLeaveAlone", canWalkHomeAlone)
+        }
 
         jsonArray.put(jsonObject)
 
@@ -300,3 +303,34 @@ private fun addStudentToInternalStorage(
     }
 }
 
+private fun generateUniqueId(jsonArray: JSONArray): Int {
+    var uniqueId: Int
+    val usedIds = mutableSetOf<Int>()
+
+    // Collect all existing IDs
+    for (i in 0 until jsonArray.length()) {
+        val studentObject = jsonArray.getJSONObject(i)
+        usedIds.add(studentObject.getInt("ID"))
+    }
+
+    // Generate a random ID and check for uniqueness
+    do {
+        uniqueId = Random.nextInt(1000, 9999)  // Adjust range as needed
+    } while (usedIds.contains(uniqueId))
+
+    return uniqueId
+}
+
+@Composable
+fun AddButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(200.dp)
+            .height(48.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors =  ButtonDefaults.buttonColors(containerColor = Color(0xFF1b69b2))
+    ) {
+        Text(text, fontSize = 16.sp)
+    }
+}
