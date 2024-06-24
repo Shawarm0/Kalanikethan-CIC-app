@@ -16,39 +16,44 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.remember
-import androidx.compose.material3.Button
+
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import android.content.Context
+import android.hardware.SensorAdditionalInfo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import java.io.InputStreamReader
 
+import java.io.File
 
 
 data class Student(
-    val name: String,
+    val studentName: String,
     val age: Int,
     val contactInfo: String,
     val parentContactInfo: String,
-    val canLeaveAlone: Boolean
+    val canLeaveAlone: Boolean,
+    val additionalInfo: String
 )
 
 
 
 class Load(private val context: Context) {
     fun loadStudents(): List<Student> {
-        val assetManager = context.assets
-        val inputStream = assetManager.open("students.json")
-        val reader = InputStreamReader(inputStream)
-        val type = object : TypeToken<List<Student>>() {}.type
-        return Gson().fromJson(reader, type)
+        val file = File(context.filesDir, "students.json")
+        return try {
+            val type = object : TypeToken<List<Student>>() {}.type
+            Gson().fromJson(file.readText(), type)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 }
+
 
 
 
@@ -199,9 +204,7 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
 @Composable
 fun SignInScreen(context: Context) {
     val load = Load(context)
-    val sortedStudentList = remember {
-        load.loadStudents().sortedBy { it.name }
-    }
+    val sortedStudents = load.loadStudents()
 
 
     Box(
@@ -238,8 +241,9 @@ fun SignInScreen(context: Context) {
             }
             Spacer(modifier = Modifier.height(10.dp))
             // Display student boxes
-            sortedStudentList.forEach { student ->
-                StudentBox(studentName = student.name,
+            println(sortedStudents)
+            sortedStudents.forEach { student ->
+                StudentBox(studentName = student.studentName,
                     age = student.age,
                     contactInfo = student.contactInfo,
                     parentContactInfo = student.parentContactInfo,
