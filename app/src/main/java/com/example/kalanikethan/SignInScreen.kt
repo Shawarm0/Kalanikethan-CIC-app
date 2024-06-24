@@ -20,11 +20,35 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.IOException
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import java.io.InputStreamReader
 
 
 
+data class Student(
+    val name: String,
+    val age: Int,
+    val contactInfo: String,
+    val parentContactInfo: String,
+    val canLeaveAlone: Boolean
+)
 
 
+
+class Load(private val context: Context) {
+    fun loadStudents(): List<Student> {
+        val assetManager = context.assets
+        val inputStream = assetManager.open("students.json")
+        val reader = InputStreamReader(inputStream)
+        val type = object : TypeToken<List<Student>>() {}.type
+        return Gson().fromJson(reader, type)
+    }
+}
 
 
 
@@ -38,7 +62,7 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White),
 
-    ) {
+        ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
@@ -173,15 +197,10 @@ fun StudentBox(studentName: String, age: Int, contactInfo: String, parentContact
 
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(context: Context) {
+    val load = Load(context)
     val sortedStudentList = remember {
-        listOf(
-            Student("Abigail George", 17, "07476423570", "07886506456", true),
-            Student("Zachary Brown", 18, "07234567890", "07987654321", false),
-            Student("Emma Johnson", 16, "07654321098", "07543210987", true),
-            Student("Angel Benny", 13, "29837423", "293874933", false),
-            // Add more students as needed
-        ).sortedBy { it.name }
+        load.loadStudents().sortedBy { it.name }
     }
 
 
@@ -221,24 +240,15 @@ fun SignInScreen() {
             // Display student boxes
             sortedStudentList.forEach { student ->
                 StudentBox(studentName = student.name,
-                           age = student.age,
-                           contactInfo = student.contactInfo,
-                           parentContactInfo = student.parentContactInfo,
-                           canLeaveAlone = student.canLeaveAlone)
+                    age = student.age,
+                    contactInfo = student.contactInfo,
+                    parentContactInfo = student.parentContactInfo,
+                    canLeaveAlone = student.canLeaveAlone)
                 Spacer(modifier = Modifier.height(10.dp)) // Vertical gap between boxes
             }
         }
     }
 }
-
-data class Student(
-    val name: String,
-    val age: Int,
-    val contactInfo: String,
-    val parentContactInfo: String,
-    val canLeaveAlone: Boolean
-)
-
 
 
 

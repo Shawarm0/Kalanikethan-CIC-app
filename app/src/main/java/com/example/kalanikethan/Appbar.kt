@@ -60,7 +60,7 @@ fun Appbar(
                 isSelected = selectedScreen == "screen2",
                 onClick = {
                     selectedScreen = "screen2"
-                    onScreenSelected("placeholder1")
+                    onScreenSelected("add")
                 }
             )
 
@@ -72,6 +72,17 @@ fun Appbar(
                 onClick = {
                     selectedScreen = "screen3"
                     onScreenSelected("whoin")
+                }
+            )
+
+            // Button 3
+            AppBarButton(
+                symbol = " ?",
+                text = " History",
+                isSelected = selectedScreen == "screen4",
+                onClick = {
+                    selectedScreen = "screen4"
+                    onScreenSelected("History")
                 }
             )
 

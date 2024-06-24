@@ -1,4 +1,5 @@
 package com.example.kalanikethan
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +16,7 @@ import androidx.compose.ui.draw.clip
 
 
 @Composable
-fun Placeholder1Screen() {
+fun History() {
     // Outer container with the background color #f3f6f6
     Box(
         modifier = Modifier
@@ -43,7 +44,7 @@ fun Placeholder1Screen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Add Student",
+                        text = "History",
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,

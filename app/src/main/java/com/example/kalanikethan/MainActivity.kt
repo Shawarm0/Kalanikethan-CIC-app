@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.kalanikethan.ui.theme.KalanikethanTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,9 +29,10 @@ class MainActivity : ComponentActivity() {
                         )
 
                         when (selectedScreen) {
-                            "signIn" -> SignInScreen()
-                            "placeholder1" -> Placeholder1Screen()
+                            "signIn" -> SignInScreen(context = applicationContext)
+                            "add" -> Add(context = applicationContext)
                             "whoin" -> Whoin()
+                            "History" -> History()
                             // Add more cases for other screens
                         }
                     }
