@@ -47,7 +47,7 @@ fun Edit(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 0.dp, vertical = 24.dp),
+                .padding(horizontal = 0.dp, vertical = 0.dp),
             verticalArrangement = Arrangement.Top,
         ) {
             Box(
@@ -235,7 +235,7 @@ fun Edit(
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp),
                             textStyle = TextStyle(color = Color.Black),
-                            singleLine = true,
+                            singleLine = false,
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 cursorColor = Color.Black,
                                 focusedBorderColor = Color.Black,

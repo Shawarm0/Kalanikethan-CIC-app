@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import android.content.Context
 import android.hardware.SensorAdditionalInfo
+import androidx.compose.foundation.border
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
@@ -57,6 +58,25 @@ class Load(private val context: Context, ) {
     }
 }
 
+// Function to write JSON data to signedin.json
+fun writeSignedInStudentsData(context: Context, students: List<Student>) {
+    val jsonFile = File(context.filesDir, "signedin.json")
+    val jsonString = Gson().toJson(students)
+    jsonFile.writeText(jsonString)
+}
+
+// Function to read JSON data from signedin.json
+fun readSignedInStudentsData(context: Context): List<Student> {
+    val jsonFile = File(context.filesDir, "signedin.json")
+    return if (jsonFile.exists()) {
+        val jsonText = jsonFile.readText()
+        val listType = object : TypeToken<List<Student>>() {}.type
+        Gson().fromJson(jsonText, listType)
+    } else {
+        emptyList()
+    }
+}
+
 
 @Composable
 fun StudentBox(
@@ -65,15 +85,16 @@ fun StudentBox(
     contactInfo: String,
     parentContactInfo: String,
     canLeaveAlone: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onSignIn: () -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
             .padding(horizontal = 16.dp, vertical = 5.dp)
-            .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -155,7 +176,6 @@ fun StudentBox(
                 )
             }
 
-
             // Fifth Column: Can Leave Alone (Checkbox)
             Column(
                 modifier = Modifier.weight(1f),
@@ -185,6 +205,7 @@ fun StudentBox(
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                         .fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1b69b2))
                 ) {
                     Text(
                         text = "Edit",
@@ -200,10 +221,11 @@ fun StudentBox(
                 modifier = Modifier.weight(1f)
             ) {
                 Button(
-                    onClick = { /* Handle Sign In button click */ },
+                    onClick = { onSignIn() }, // Call the onSignIn callback
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                         .fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1b69b2))
                 ) {
                     Text(
                         text = "Sign In",
@@ -217,35 +239,43 @@ fun StudentBox(
     }
 }
 
+
 @Composable
 fun SignInScreen(
     context: Context,
     onScreenSelected: (String, Student) -> Unit
 ) {
     val load = Load(context)
-    val sortedStudents = load.loadStudents()
+    val allStudents = load.loadStudents()
+    val signedInStudents = remember { mutableStateListOf<Student>() }
+
+    LaunchedEffect(Unit) {
+        signedInStudents.addAll(readSignedInStudentsData(context))
+    }
+
+    val signedInStudentIds = signedInStudents.map { it.ID }.toSet()
+    val availableStudents = allStudents.filter { it.ID !in signedInStudentIds }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFebefef)) // Background color for the entire screen
+            .background(color = Color(0xFFebefef))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 0.dp, vertical = 24.dp)
+                .padding(horizontal = 0.dp, vertical = 0.dp)
                 .verticalScroll(enabled = true, state = rememberScrollState()),
             verticalArrangement = Arrangement.Top,
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .clip(RoundedCornerShape(0.dp)) // Rounded corners for the white box
-                    .background(color = Color(0xFF1b69b2)) // White background color for the box
-                    .padding(horizontal = 30.dp), // Horizontal padding
-                contentAlignment = Alignment.CenterStart // Align content to the start horizontally
+                    .clip(RoundedCornerShape(0.dp))
+                    .background(color = Color(0xFF1b69b2))
+                    .padding(horizontal = 30.dp),
+                contentAlignment = Alignment.CenterStart
             ) {
                 Text(
                     text = "Sign In",
@@ -254,25 +284,31 @@ fun SignInScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .wrapContentHeight(align = Alignment.CenterVertically),
-                    textAlign = TextAlign.Right // Align text to the right
+                    textAlign = TextAlign.Right
                 )
             }
+
             Spacer(modifier = Modifier.height(10.dp))
-            // Display student boxes
-            sortedStudents.forEach { student ->
+            availableStudents.forEach { student ->
                 StudentBox(
                     studentName = student.studentName,
                     age = student.age,
                     contactInfo = student.contactInfo,
                     parentContactInfo = student.parentContactInfo,
                     canLeaveAlone = student.canLeaveAlone,
-                    onClick = { onScreenSelected("edit", student) } // Pass the student data when clicked
+                    onClick = { onScreenSelected("edit", student) },
+                    onSignIn = {
+                        signedInStudents.add(student)
+                        writeSignedInStudentsData(context, signedInStudents)
+                    }
                 )
-                Spacer(modifier = Modifier.height(10.dp)) // Vertical gap between boxes
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }
 }
+
+
 
 
 

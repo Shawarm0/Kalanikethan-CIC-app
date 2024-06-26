@@ -1,7 +1,11 @@
 package com.example.kalanikethan
+import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,44 +19,155 @@ import androidx.compose.ui.draw.clip
 
 
 @Composable
-fun Whoin() {
-    // Outer container with the background color #f3f6f6
+fun SignedInStudentBox(
+    studentName: String,
+    age: Int,
+    contactInfo: String,
+    parentContactInfo: String,
+    canLeaveAlone: Boolean,
+    onClick: () -> Unit,
+    onSignOut: () -> Unit
+) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color(0xFFebefef)) // Background color for the entire screen
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(color = Color.White)
+            .clip(RoundedCornerShape(8.dp))
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
+            .padding(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 0.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.Top,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            // White box for sign-in content
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .clip(RoundedCornerShape(0.dp)) // Rounded corners for the white box
-                    .background(color = Color(0xFF1b69b2)) // White background color for the box
-                    .padding(horizontal = 30.dp), // Horizontal padding
-                contentAlignment = Alignment.CenterStart // Align content to the start horizontally
+            // Student Details
+            Column(
+                modifier = Modifier.weight(2f)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Who's In",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .wrapContentHeight(align = Alignment.CenterVertically),
-                        textAlign = TextAlign.Right // Align text to the right
-                    )
-                }
+                Text(
+                    text = studentName,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    text = "Age: $age",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    text = "Contact: $contactInfo",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    text = "Parent Contact: $parentContactInfo",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start
+                )
+
+            }
+
+            // Fifth Column: Can Leave Alone (Checkbox)
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Can leave alone",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+                Checkbox(
+                    checked = canLeaveAlone,
+                    onCheckedChange = null, // Make it read-only
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
+
+            // Sign Out Button
+            Button(
+                onClick = onSignOut,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1b69b2))
+            ) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 }
+
+
+@Composable
+fun Whoin(
+    context: Context,
+    onScreenSelected: (String, Student) -> Unit
+) {
+    val signedInStudents = remember { mutableStateListOf<Student>() }
+
+    LaunchedEffect(Unit) {
+        signedInStudents.addAll(readSignedInStudentsData(context))
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xFFebefef))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 0.dp, vertical = 0.dp)
+                .verticalScroll(enabled = true, state = rememberScrollState()),
+            verticalArrangement = Arrangement.Top,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(0.dp))
+                    .background(color = Color(0xFF1b69b2))
+                    .padding(horizontal = 30.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = "Who's In",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .wrapContentHeight(align = Alignment.CenterVertically),
+                    textAlign = TextAlign.Right
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            signedInStudents.forEach { student ->
+                SignedInStudentBox(
+                    studentName = student.studentName,
+                    age = student.age,
+                    contactInfo = student.contactInfo,
+                    parentContactInfo = student.parentContactInfo,
+                    canLeaveAlone = student.canLeaveAlone,
+                    onClick = { onScreenSelected("edit", student) },
+                    onSignOut = {
+                        signedInStudents.remove(student)
+                        writeSignedInStudentsData(context, signedInStudents)
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+        }
+    }
+}
+

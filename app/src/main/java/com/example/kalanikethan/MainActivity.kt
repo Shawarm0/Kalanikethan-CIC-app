@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KalanikethanTheme {
-                var selectedScreen by remember { mutableStateOf("signIn") } // Default screen
+                var selectedScreen by remember { mutableStateOf("signIn") }
                 var selectedStudent by remember {
                     mutableStateOf(
                         Student(
@@ -55,19 +55,16 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Row(Modifier.fillMaxSize()) {
-                        // Appbar on the left with top padding
                         Appbar(
                             modifier = Modifier
-                                .padding(top = 24.dp) // Add top padding
-                                .width(200.dp) // Adjust width as needed
+                                .padding(top = 24.dp)
+                                .width(200.dp)
                                 .fillMaxHeight(),
                             onScreenSelected = { screen ->
                                 selectedScreen = screen
                             }
                         )
-
-                        // Main content
-                        Column(modifier = Modifier.fillMaxSize()) {
+                        Column(modifier = Modifier.fillMaxSize().padding(top = 24.dp)) {
                             when (selectedScreen) {
                                 "signIn" -> SignInScreen(
                                     context = applicationContext,
@@ -77,8 +74,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                                 "add" -> Add(context = applicationContext)
-                                "whoin" -> Whoin()
-                                "History" -> History()
+                                "whoin" -> Whoin(
+                                    context = applicationContext,
+                                    onScreenSelected = { screen, student ->
+                                        selectedScreen = screen
+                                        selectedStudent = student
+                                    }
+                                )
+//                                "History" -> History()
                                 "edit" -> Edit(
                                     ID = selectedStudent.ID,
                                     studentName = selectedStudent.studentName,
@@ -90,14 +93,10 @@ class MainActivity : ComponentActivity() {
                                     canLeaveAlone = selectedStudent.canLeaveAlone,
                                     additionalInfo = selectedStudent.additionalInfo,
                                     onSave = { ID: Int, name: String, age: Int, contact: String, parent: String, parentContact: String, address: String, canLeave: Boolean, additional: String ->
-                                        // Read existing students data
                                         val students = readStudentsData(applicationContext)
-
-                                        // Find the student with matching ID
                                         val studentToUpdate = students.find { it.ID == ID }
 
                                         if (studentToUpdate != null) {
-                                            // Update the fields
                                             studentToUpdate.studentName = name
                                             studentToUpdate.age = age
                                             studentToUpdate.contactInfo = contact
@@ -107,30 +106,20 @@ class MainActivity : ComponentActivity() {
                                             studentToUpdate.canLeaveAlone = canLeave
                                             studentToUpdate.additionalInfo = additional
 
-                                            // Write back updated data to JSON file
                                             writeStudentsData(applicationContext, students)
 
-                                            // Update selectedStudent directly
                                             selectedStudent = studentToUpdate
                                             selectedScreen = "signIn"
                                         } else {
-                                            // Handle case where student with given ID is not found
                                             println("Student with ID $ID not found.")
-
-
                                         }
                                     },
                                     onDelete = { ID ->
-                                        // Read existing students data
                                         val students = readStudentsData(applicationContext)
-
-                                        // Filter out the student with matching ID
                                         val updatedStudents = students.filter { it.ID != ID }
 
-                                        // Write back updated data to JSON file
                                         writeStudentsData(applicationContext, updatedStudents)
 
-                                        // Update selectedStudent and selectedScreen if the deleted student was selected
                                         if (selectedStudent.ID == ID) {
                                             selectedStudent = Student(
                                                 ID = 0,
@@ -143,11 +132,10 @@ class MainActivity : ComponentActivity() {
                                                 canLeaveAlone = false,
                                                 additionalInfo = ""
                                             )
-                                            selectedScreen = "signIn" // or any default screen after deletion
+                                            selectedScreen = "signIn"
                                         }
                                     }
                                 )
-                                // Add more cases for other screens
                             }
                         }
                     }
@@ -156,6 +144,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+
 
 
 
