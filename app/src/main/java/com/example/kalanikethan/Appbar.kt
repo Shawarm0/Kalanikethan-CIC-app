@@ -14,8 +14,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.graphics.vector.ImageVector
 
+@Composable
+fun CustomIcon(iconResId: Int, contentDescription: String) {
+    // Load the custom icon using painterResource
+    val painter = painterResource(id = iconResId)
+
+    // Display the icon using Icon composable
+    Icon(
+        painter = painter,
+        contentDescription = contentDescription,
+        modifier = Modifier.padding(0.dp).size(25.dp) // Adjust padding as needed
+    )
+}
 
 @Composable
 fun Appbar(
@@ -43,7 +59,7 @@ fun Appbar(
 
             // Inside Appbar composable
             AppBarButton(
-                symbol = "⎘",
+                iconResId = R.drawable.login,
                 text = " Sign In",
                 isSelected = selectedScreen == "screen1",
                 onClick = {
@@ -55,7 +71,7 @@ fun Appbar(
 
             // Button 2
             AppBarButton(
-                symbol = "✚",
+                iconResId = R.drawable.add,
                 text = " Add",
                 isSelected = selectedScreen == "screen2",
                 onClick = {
@@ -66,7 +82,7 @@ fun Appbar(
 
             // Button 3
             AppBarButton(
-                symbol = " ?",
+                iconResId = R.drawable.search,
                 text = " Who's In",
                 isSelected = selectedScreen == "screen3",
                 onClick = {
@@ -77,12 +93,24 @@ fun Appbar(
 
             // Button 3
             AppBarButton(
-                symbol = " ?",
+                iconResId = R.drawable.history,
                 text = " History",
                 isSelected = selectedScreen == "screen4",
                 onClick = {
                     selectedScreen = "screen4"
                     onScreenSelected("History")
+                }
+            )
+
+
+            // Button 2
+            AppBarButton(
+                iconResId = R.drawable.wallet,
+                text = " Payments",
+                isSelected = selectedScreen == "screen5",
+                onClick = {
+                    selectedScreen = "screen5"
+                    onScreenSelected("payments")
                 }
             )
 
@@ -92,34 +120,30 @@ fun Appbar(
 }
 
 @Composable
-fun AppBarButton(symbol: String, text: String, isSelected: Boolean, onClick: () -> Unit) {
+fun AppBarButton(iconResId: Int, text: String, isSelected: Boolean, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = Modifier.width(150.dp),
-        colors = if (isSelected) {
-            ButtonDefaults.buttonColors(containerColor = Color(
-                0xFF1b69b2))
-        } else {
-            ButtonDefaults.buttonColors(containerColor = Color.Transparent) // Non-selected color
-        },
-        shape = RoundedCornerShape(8.dp) // Rounded corners with 8.dp radius
+        modifier = Modifier.width(180.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color(0xFF1b69b2) else Color.Transparent
+        ),
+        shape = MaterialTheme.shapes.medium // Use MaterialTheme's default button shape
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = symbol,
-                color = if (isSelected) Color.White else Color.White, // Text color
-                fontSize = 16.sp
-            )
+            // Use CustomIcon composable to display the custom icon
+            CustomIcon(iconResId = iconResId, contentDescription = text)
+
             Spacer(modifier = Modifier.width(8.dp)) // Adjust spacing as needed
+
             Text(
                 text = text,
-                color = if (isSelected) Color.White else Color.White, // Text color
+                color = Color.White, // Text color
                 fontSize = 16.sp,
-                modifier = Modifier.padding(end = 8.dp) // Add padding between symbol and text
+                modifier = Modifier.padding(end = 8.dp) // Add padding between icon and text
             )
         }
     }

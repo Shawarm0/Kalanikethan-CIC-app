@@ -124,7 +124,9 @@ class MainActivity : ComponentActivity() {
                                     onSave = { ID: Int, name: String, age: Int, contact: String, parent: String, parentContact: String, address: String, canLeave: Boolean, additional: String ->
                                         val students = readStudentsData(applicationContext)
                                         val studentToUpdate = students.find { it.ID == ID }
-
+                                        if (studentToUpdate != null) {
+                                            updateHistory(applicationContext, description = "${studentToUpdate.studentName} Has been edited.\nChanges have been saved")
+                                        }
                                         if (studentToUpdate != null) {
                                             studentToUpdate.studentName = name
                                             studentToUpdate.age = age
@@ -147,6 +149,10 @@ class MainActivity : ComponentActivity() {
                                         val students = readStudentsData(applicationContext)
                                         val updatedStudents = students.filter { it.ID != ID }
 
+                                        val studentToDelete = students.find { it.ID == ID }
+
+                                        updateHistory(applicationContext, description = "${studentToDelete?.studentName} has been deleted.\nChanges have been saved")
+
                                         writeStudentsData(applicationContext, updatedStudents)
 
                                         if (selectedStudent.ID == ID) {
@@ -163,8 +169,10 @@ class MainActivity : ComponentActivity() {
                                             )
                                             selectedScreen = "signIn"
                                         }
-                                    }
+                                    },
+
                                 )
+                                "payments" -> Payments()
                             }
                         }
                     }

@@ -62,31 +62,30 @@ fun writeHistoryData(context: Context, history: MutableList<History>) {
     jsonFile.writeText(jsonString)
 }
 
-
 @SuppressLint("NewApi")
 fun updateHistory(context: Context, description: String) {
     val history = readHistoryData1(context)
-    val currentDate = java.time.LocalDate.now()
+    val currentDate = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"))
     val currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
-    val dayOfWeek = currentDate.dayOfWeek.toString().replaceFirstChar { it.uppercaseChar() }
+    val dayOfWeek = java.time.LocalDate.now().dayOfWeek.toString().lowercase().replaceFirstChar { it.uppercase() }  // Get day of week as lowercase string
 
-    val currentDateStr = currentDate.toString()
     val newActivity = Activity(timestamp = currentTime, description = description)
 
     // Find the history entry for the current date
-    val historyEntry = history.find { it.date == currentDateStr }
+    val historyEntry = history.find { it.date == currentDate }
 
     if (historyEntry != null) {
         // Add the new activity to the existing entry
         historyEntry.activities.add(newActivity)
     } else {
         // Create a new history entry
-        val newHistoryEntry = History(date = currentDateStr, day = dayOfWeek, activities = mutableListOf(newActivity))
+        val newHistoryEntry = History(date = currentDate, day = dayOfWeek, activities = mutableListOf(newActivity))
         history.add(newHistoryEntry)
     }
 
     writeHistoryData(context, history)
 }
+
 
 
 
