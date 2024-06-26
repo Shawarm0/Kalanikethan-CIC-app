@@ -1,4 +1,5 @@
 package com.example.kalanikethan
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +21,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.IOException
+
+
+
 
 
 @Composable
@@ -174,6 +178,8 @@ fun Whoin(
                         allStudents.add(student)
                         // Update students JSON file
                         writeStudentsData(context, allStudents)
+
+                        updateHistory(context, description = "Signed out ${student.studentName}")
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

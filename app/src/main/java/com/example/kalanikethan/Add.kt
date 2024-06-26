@@ -299,6 +299,10 @@ private fun addStudentToInternalStorage(
 
         jsonArray.put(jsonObject)
 
+
+        // Update history with an activity description
+        updateHistory(context, description = "$name has been added")
+
         file.writeText(jsonArray.toString())
     } catch (e: IOException) {
         e.printStackTrace()

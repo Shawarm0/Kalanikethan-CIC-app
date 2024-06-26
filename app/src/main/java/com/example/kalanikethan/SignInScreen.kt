@@ -1,5 +1,6 @@
 package com.example.kalanikethan
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +43,60 @@ data class Student(
     var canLeaveAlone: Boolean,
     var additionalInfo: String
 )
+
+fun readHistoryData1(context: Context): MutableList<History> {
+    val jsonFile = File(context.filesDir, "history.json")
+    return if (jsonFile.exists()) {
+        val jsonText = jsonFile.readText()
+        val listType = object : TypeToken<MutableList<History>>() {}.type
+        Gson().fromJson(jsonText, listType)
+    } else {
+        mutableListOf()
+    }
+}
+
+
+fun writeHistoryData(context: Context, history: MutableList<History>) {
+    val jsonFile = File(context.filesDir, "history.json")
+    val jsonString = Gson().toJson(history)
+    jsonFile.writeText(jsonString)
+}
+
+
+@SuppressLint("NewApi")
+fun updateHistory(context: Context, description: String) {
+    val history = readHistoryData1(context)
+    val currentDate = java.time.LocalDate.now()
+    val currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+    val dayOfWeek = currentDate.dayOfWeek.toString().replaceFirstChar { it.uppercaseChar() }
+
+    val currentDateStr = currentDate.toString()
+    val newActivity = Activity(timestamp = currentTime, description = description)
+
+    // Find the history entry for the current date
+    val historyEntry = history.find { it.date == currentDateStr }
+
+    if (historyEntry != null) {
+        // Add the new activity to the existing entry
+        historyEntry.activities.add(newActivity)
+    } else {
+        // Create a new history entry
+        val newHistoryEntry = History(date = currentDateStr, day = dayOfWeek, activities = mutableListOf(newActivity))
+        history.add(newHistoryEntry)
+    }
+
+    writeHistoryData(context, history)
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -309,6 +364,8 @@ fun SignInScreen(
                             writeSignedInStudentsData(context, signedInStudents)
                             // Write updated all students list
                             writeStudentsData(context, updatedAllStudents)
+                            // Update history
+                            updateHistory(context, description = "Signed in ${student.studentName}")
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
@@ -317,6 +374,7 @@ fun SignInScreen(
         }
     }
 }
+
 
 
 

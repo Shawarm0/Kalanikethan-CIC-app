@@ -23,12 +23,39 @@ fun readStudentsData(context: android.content.Context): List<Student> {
     return Gson().fromJson(jsonText, listType)
 }
 
+data class History(
+    val date: String,
+    val day: String,
+    val activities: MutableList<Activity>
+)
+
+data class Activity(
+    val timestamp: String,
+    val description: String
+)
+
+
+
+
 // Function to write JSON data to students.json
 fun writeStudentsData(context: android.content.Context, students: List<Student>) {
     val jsonFile = File(context.filesDir, "students.json")
     val jsonString = Gson().toJson(students)
     jsonFile.writeText(jsonString)
 }
+
+
+private fun createHistoryFile(context: android.content.Context) {
+    val file = File(context.filesDir, "history.json")
+    if (!file.exists()) {
+        val templateData = """
+                []
+            """.trimIndent()
+        file.writeText(templateData)
+    }
+}
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +79,8 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
+
+                createHistoryFile(applicationContext)
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Row(Modifier.fillMaxSize()) {
@@ -81,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                         selectedStudent = student
                                     }
                                 )
-//                                "History" -> History()
+                               "History" -> History(context = applicationContext)
                                 "edit" -> Edit(
                                     ID = selectedStudent.ID,
                                     studentName = selectedStudent.studentName,
