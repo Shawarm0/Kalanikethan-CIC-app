@@ -16,6 +16,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.io.IOException
 
 
 @Composable
@@ -161,8 +165,15 @@ fun Whoin(
                     canLeaveAlone = student.canLeaveAlone,
                     onClick = { onScreenSelected("edit", student) },
                     onSignOut = {
+                        // Remove from signed in list
                         signedInStudents.remove(student)
+                        // Update signed in students JSON file
                         writeSignedInStudentsData(context, signedInStudents)
+                        // Add back to students list
+                        val allStudents = loadStudents(context)
+                        allStudents.add(student)
+                        // Update students JSON file
+                        writeStudentsData(context, allStudents)
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
@@ -170,4 +181,18 @@ fun Whoin(
         }
     }
 }
+
+// Function to load students from students.json
+fun loadStudents(context: Context): MutableList<Student> {
+    val file = File(context.filesDir, "students.json")
+    return try {
+        val type = object : TypeToken<List<Student>>() {}.type
+        Gson().fromJson(file.readText(), type)
+    } catch (e: IOException) {
+        e.printStackTrace()
+        mutableListOf()
+    }
+}
+
+
 

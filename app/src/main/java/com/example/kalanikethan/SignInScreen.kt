@@ -249,12 +249,10 @@ fun SignInScreen(
     val allStudents = load.loadStudents()
     val signedInStudents = remember { mutableStateListOf<Student>() }
 
+    // Load initially signed in students
     LaunchedEffect(Unit) {
         signedInStudents.addAll(readSignedInStudentsData(context))
     }
-
-    val signedInStudentIds = signedInStudents.map { it.ID }.toSet()
-    val availableStudents = allStudents.filter { it.ID !in signedInStudentIds }
 
     Box(
         modifier = Modifier
@@ -289,24 +287,37 @@ fun SignInScreen(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            availableStudents.forEach { student ->
-                StudentBox(
-                    studentName = student.studentName,
-                    age = student.age,
-                    contactInfo = student.contactInfo,
-                    parentContactInfo = student.parentContactInfo,
-                    canLeaveAlone = student.canLeaveAlone,
-                    onClick = { onScreenSelected("edit", student) },
-                    onSignIn = {
-                        signedInStudents.add(student)
-                        writeSignedInStudentsData(context, signedInStudents)
-                    }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+
+            allStudents.forEach { student ->
+                // Only show students who are not already signed in
+                if (!signedInStudents.any { it.ID == student.ID }) {
+                    StudentBox(
+                        studentName = student.studentName,
+                        age = student.age,
+                        contactInfo = student.contactInfo,
+                        parentContactInfo = student.parentContactInfo,
+                        canLeaveAlone = student.canLeaveAlone,
+                        onClick = { onScreenSelected("edit", student) },
+                        onSignIn = {
+                            // Remove student from all students list
+                            val updatedAllStudents = allStudents.filter { it.ID != student.ID }
+                            // Update UI
+                            onScreenSelected("signIn", student)
+                            // Update signed in list
+                            signedInStudents.add(student)
+                            // Write updated signed in students list
+                            writeSignedInStudentsData(context, signedInStudents)
+                            // Write updated all students list
+                            writeStudentsData(context, updatedAllStudents)
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
         }
     }
 }
+
 
 
 
