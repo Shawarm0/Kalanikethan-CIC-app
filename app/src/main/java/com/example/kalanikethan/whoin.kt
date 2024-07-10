@@ -98,6 +98,8 @@ fun SignedInStudentBox(
                 )
             }
 
+
+
             // Sign Out Button
             Button(
                 onClick = onSignOut,
@@ -179,7 +181,7 @@ fun Whoin(
                         // Update students JSON file
                         writeStudentsData(context, allStudents)
 
-                        updateHistory(context, description = "Signed out ${student.studentName}")
+                        Signouthistory(context, active = false, ID = student.ID, Name= student.studentName)
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

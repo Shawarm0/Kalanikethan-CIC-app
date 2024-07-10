@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.kalanikethan"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -18,6 +18,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+
     }
 
     buildTypes {
@@ -49,6 +51,8 @@ android {
     }
 }
 
+
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -61,6 +65,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("com.google.android.material:material:1.5.0")
     implementation("com.google.code.gson:gson:2.8.8")
+    implementation("androidx.compose.ui:ui:1.5.1")
+    implementation("androidx.compose.material:material:1.5.1")
+    // Other Jetpack Compose dependencies as needed
+    // Include the compose-ui dependency
+    implementation("androidx.compose.ui:ui:1.5.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

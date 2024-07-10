@@ -26,12 +26,18 @@ fun readStudentsData(context: android.content.Context): List<Student> {
 data class History(
     val date: String,
     val day: String,
-    val activities: MutableList<Activity>
+    val EventID: Int,
+    val ID: Int,
+    val Name: String,
+    var Active: Boolean,
+    val Signintime: String,
+    var Signouttime: String,
+    val changesmade: MutableList<Changes>
 )
 
-data class Activity(
-    val timestamp: String,
-    val description: String
+data class Changes(
+    val description: String,
+    val timestamp: String
 )
 
 
@@ -125,7 +131,7 @@ class MainActivity : ComponentActivity() {
                                         val students = readStudentsData(applicationContext)
                                         val studentToUpdate = students.find { it.ID == ID }
                                         if (studentToUpdate != null) {
-                                            updateHistory(applicationContext, description = "${studentToUpdate.studentName} Has been edited.\nChanges have been saved")
+                                            Change(applicationContext,  ID=studentToUpdate.ID,  Change = "Edit")
                                         }
                                         if (studentToUpdate != null) {
                                             studentToUpdate.studentName = name
@@ -151,7 +157,9 @@ class MainActivity : ComponentActivity() {
 
                                         val studentToDelete = students.find { it.ID == ID }
 
-                                        updateHistory(applicationContext, description = "${studentToDelete?.studentName} has been deleted.\nChanges have been saved")
+                                        if (studentToDelete != null) {
+                                            Change(applicationContext,  ID=studentToDelete.ID,  Change = "Deleted")
+                                        }
 
                                         writeStudentsData(applicationContext, updatedStudents)
 

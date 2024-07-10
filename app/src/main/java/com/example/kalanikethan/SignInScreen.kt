@@ -22,14 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import android.content.Context
-import android.hardware.SensorAdditionalInfo
 import androidx.compose.foundation.border
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.json.JSONArray
 import java.io.IOException
-import java.io.InputStreamReader
 
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 
 data class Student(
@@ -56,6 +58,17 @@ fun readHistoryData1(context: Context): MutableList<History> {
 }
 
 
+fun historyHasEventId(history: JSONArray, eventId: Int): Boolean {
+    for (i in 0 until history.length()) {
+        val item = history.getJSONObject(i)
+        if (item.getInt("EventID") == eventId) {
+            return true
+        }
+    }
+    return false
+}
+
+
 fun writeHistoryData(context: Context, history: MutableList<History>) {
     val jsonFile = File(context.filesDir, "history.json")
     val jsonString = Gson().toJson(history)
@@ -63,30 +76,86 @@ fun writeHistoryData(context: Context, history: MutableList<History>) {
 }
 
 @SuppressLint("NewApi")
-fun updateHistory(context: Context, description: String) {
+fun Signinhistory(context: Context, active: Boolean, ID: Int, name:String) {
+    // Read existing history data
     val history = readHistoryData1(context)
+
+    // Generate a unique 4-digit EventID
+    var eventId: Int
+    do {
+        eventId = Random.nextInt(1000, 10000)  // Generate a random 4-digit number
+    } while (history.any { it.EventID == eventId })  // Ensure it's unique
+
+    // Get the current date and time
+
+
+
     val currentDate = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"))
     val currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
     val dayOfWeek = java.time.LocalDate.now().dayOfWeek.toString().lowercase().replaceFirstChar { it.uppercase() }  // Get day of week as lowercase string
 
-    val newActivity = Activity(timestamp = currentTime, description = description)
+    // Create new entry
+    val newEntry = History(
+        date = currentDate,
+        day = dayOfWeek,
+        EventID = eventId,
+        ID = ID,
+        Name = name,
+        Active = active,
+        Signintime = currentTime,
+        Signouttime = "--",
+        changesmade = mutableListOf()
+    )
 
-    // Find the history entry for the current date
-    val historyEntry = history.find { it.date == currentDate }
+    // Add the new entry to the history
+    history.add(newEntry)
 
-    if (historyEntry != null) {
-        // Add the new activity to the existing entry
-        historyEntry.activities.add(newActivity)
-    } else {
-        // Create a new history entry
-        val newHistoryEntry = History(date = currentDate, day = dayOfWeek, activities = mutableListOf(newActivity))
-        history.add(newHistoryEntry)
-    }
+    // Write the updated history data
+    writeHistoryData(context, history)
 
     writeHistoryData(context, history)
 }
 
 
+
+
+@SuppressLint("NewApi")
+fun Signouthistory(context: Context, active: Boolean, ID: Int, Name:String) {
+    val history = readHistoryData1(context)
+    val currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+
+    // Find the entry with the same ID that is currently active
+    val entry = history.find { it.ID == ID && it.Active }
+
+    if (entry != null) {
+        // Update the entry
+        entry.Active = false
+        entry.Signouttime = currentTime
+    }
+
+
+
+    writeHistoryData(context, history)
+}
+
+@SuppressLint("NewApi")
+fun Change(context: Context, ID: Int, Change:String) {
+    val history = readHistoryData1(context)
+    val currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+
+    // Find the most recent entry with the same ID and is active
+    val entry = history.filter { it.ID == ID }
+        .maxByOrNull { entry ->
+            val dateTimeStr = "${entry.date}-${entry.Signintime}"
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH:mm")
+            LocalDateTime.parse(dateTimeStr, formatter)
+        }
+
+    entry?.changesmade?.add(Changes(description = Change, timestamp = currentTime))
+
+    // Write the updated history back to file
+    writeHistoryData(context, history)
+}
 
 
 
@@ -197,7 +266,7 @@ fun StudentBox(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Student Num",
+                    text = "Student Number",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -216,7 +285,7 @@ fun StudentBox(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Parent Num",
+                    text = "Parent Number",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -364,7 +433,7 @@ fun SignInScreen(
                             // Write updated all students list
                             writeStudentsData(context, updatedAllStudents)
                             // Update history
-                            updateHistory(context, description = "Signed in ${student.studentName}")
+                            Signinhistory(context, active = true, ID = student.ID, name = student.studentName, )
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
