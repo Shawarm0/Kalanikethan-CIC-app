@@ -146,7 +146,7 @@ fun Change(context: Context, ID: Int, Change:String) {
     // Find the most recent entry with the same ID and is active
     val entry = history.filter { it.ID == ID }
         .maxByOrNull { entry ->
-            val dateTimeStr = "${entry.date}-${entry.Signintime}"
+            val dateTimeStr = "${entry.date}-${entry.Signouttime}"
             val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH:mm")
             LocalDateTime.parse(dateTimeStr, formatter)
         }

@@ -54,8 +54,8 @@ fun readHistoryData(context: Context): List<History> {
 // Comparator to sort History entries by date and time
 val historyComparator = Comparator<History> { h1, h2 ->
     val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
-    val dateTime1 = dateFormat.parse("${h1.date} ${h1.Signintime}") ?: Date(0)
-    val dateTime2 = dateFormat.parse("${h2.date} ${h2.Signintime}") ?: Date(0)
+    val dateTime1 = dateFormat.parse("${h1.date} ${h1.Signouttime}") ?: Date(0)
+    val dateTime2 = dateFormat.parse("${h2.date} ${h2.Signouttime}") ?: Date(0)
     dateTime2.compareTo(dateTime1) // Descending order (most recent first)
 }
 
