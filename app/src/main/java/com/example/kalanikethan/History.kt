@@ -51,11 +51,30 @@ fun readHistoryData(context: Context): List<History> {
 }
 
 
-// Comparator to sort History entries by date and time
 val historyComparator = Comparator<History> { h1, h2 ->
     val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
-    val dateTime1 = dateFormat.parse("${h1.date} ${h1.Signouttime}") ?: Date(0)
-    val dateTime2 = dateFormat.parse("${h2.date} ${h2.Signouttime}") ?: Date(0)
+
+    // Function to get the correct date-time string
+    fun getDateTimeString(entry: History): String {
+        return if (entry.Signouttime == "--") {
+            "${entry.date} ${entry.Signintime}"
+        } else {
+            "${entry.date} ${entry.Signouttime}"
+        }
+    }
+
+    // Compare if either signout time is "--"
+    if (h1.Signouttime == "--" && h2.Signouttime != "--") {
+        return@Comparator -1 // h1 should come first
+    }
+    if (h1.Signouttime != "--" && h2.Signouttime == "--") {
+        return@Comparator 1 // h2 should come first
+    }
+
+    // Parse the date-time strings
+    val dateTime1 = dateFormat.parse(getDateTimeString(h1)) ?: Date(0)
+    val dateTime2 = dateFormat.parse(getDateTimeString(h2)) ?: Date(0)
+
     dateTime2.compareTo(dateTime1) // Descending order (most recent first)
 }
 
@@ -99,7 +118,8 @@ fun History(context: Context) {
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 0.dp, horizontal = 10.dp)
         ) {
-            historyEntries.groupBy { it.day }.forEach { (day, entries) ->
+            // Group history entries by a custom key that combines day and date
+            historyEntries.groupBy { "${it.day}: ${it.date}" }.forEach { (dayDate, entries) ->
                 // Dropdown for each date
                 var expanded by remember { mutableStateOf(false) }
                 Column(
@@ -117,7 +137,7 @@ fun History(context: Context) {
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
                         Text(
-                            text = day,
+                            text = dayDate,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 8.dp)
